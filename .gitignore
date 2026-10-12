@@ -9,3 +9,6 @@ data/*.sqlite*
 .DS_Store
 test-results/
 *.tsbuildinfo
+
+.sites-deploy/
+playwright-report/

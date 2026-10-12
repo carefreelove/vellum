@@ -10,6 +10,8 @@
 
 [English](README.md) · **简体中文**
 
+[**在线体验 →**](https://vellum.wayback654.chatgpt.site/zh)
+
 [![CI](https://github.com/carefreelove/vellum/actions/workflows/ci.yml/badge.svg)](https://github.com/carefreelove/vellum/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/license-MIT-cc4427)](LICENSE)
 ![Node.js 24](https://img.shields.io/badge/Node.js-24-262620)
@@ -22,7 +24,19 @@
 
 Vellum 是一个独立、开源的双语 Codex 装饰主题画廊。采用米白、墨黑与橙红构成的编辑设计风格，以少量精选主题、统一的工作空间预览、双主题对比和本地收藏，帮助你找到喜欢的工作氛围。
 
-> **首版边界：**当前交付的是可运行的主题画廊基础架构，包含 3 款原创**设计概念**。预览是代码绘制的示意图，不是 Codex 实机截图。下载的配色 JSON 仅包含参考设计 token，**不是可安装的 Codex 主题包**。本项目不会修改 Codex 文件；桌面主题安装与兼容性验证不属于本次首版交付。
+> **当前边界：**3 款原创设计概念；预览不是 Codex 实机截图。配色 JSON 是参考设计 token。纸间工作室另提供实验性原生分享文本，待实机导入验证。网站不会自动修改 Codex。
+
+## v0.2 更新
+
+- **可分享状态**：语言使用 `/zh/`、`/en/` 路径；搜索、模式、氛围、排序保存在 URL；对比页通过 `themes` 参数分享两款主题。接收者无需预先收藏。
+- **页面信息**：服务端生成双语 title、description、Open Graph、canonical 与 hreflang；提供 sitemap 和 robots.txt；未知页面及主题返回真实 HTTP 404。正文仍由 React 在浏览器渲染。
+- **原生分享试验**：纸间工作室可复制或下载 `codex-theme-v1:` 文本，配有备份、导入与恢复说明。按桌面构建 26.930.61225 只读核验格式，**没有完成真实应用导入验证**；不是一键安装。其他两款仍为设计预览。
+- **结构与测试**：拆分 pages、components 与 hooks；16 项 API／内容／元数据测试，12 项桌面和手机 Chromium 场景；GitHub Actions 执行构建与浏览器测试。
+- **部署适配**：本地保留 Express + SQLite；Sites 使用 Vinext + Cloudflare D1，复用主题数据、查询校验、分享码和页面信息生成规则。
+
+分享示例：`/zh/?mode=dark&mood=organic`、`/en/compare?themes=paper-studio,midnight-orbit`。收藏仍只保存在当前浏览器；语言路径优先于本地偏好。
+
+原生分享的支持字段和验证边界详见 [可行性记录](docs/THEME-FEASIBILITY.md)。原生面板和代码语法配色可能不同于网页示意图，分享文本不会安装字体。
 
 ## 功能
 
@@ -84,6 +98,8 @@ pnpm dev
 # 测试与构建
 pnpm test
 pnpm build
+pnpm exec playwright install chromium
+pnpm test:e2e
 
 # 同一进程提供生产前端与 API
 pnpm start
@@ -104,6 +120,8 @@ pnpm start
 | `pnpm start`      | 提供已构建前端与 API                  |
 | `pnpm db:seed`    | 初始化主题目录，保留已有条目          |
 
+`pnpm test:e2e` 需先运行 `pnpm build`；测试自动启动独立端口 4175 和内存数据库，不读取个人收藏或现有数据库。
+
 ### 环境配置
 
 可以复制 `.env.example` 为 `.env`。服务启动时读取该文件，已有进程环境变量优先。
@@ -113,6 +131,8 @@ pnpm start
 | `HOST`          | `127.0.0.1`             | 容器或远程反向代理后通常使用 `0.0.0.0` |
 | `PORT`          | `3001`                  | HTTP 监听端口                          |
 | `DATABASE_PATH` | `./data/gallery.sqlite` | SQLite 持久化文件位置                  |
+
+生产环境设置 `PUBLIC_ORIGIN` 为实际 HTTPS 域名，用于 canonical、hreflang 和 sitemap；本地默认为 `http://localhost:3001`。
 
 不要提交 `.env` 或运行中的数据库文件；它们已加入 `.gitignore`。
 
@@ -135,18 +155,24 @@ SQLite（node:sqlite、WAL 模式、持久磁盘）
 
 ```text
 src/
-  App.tsx                   页面和画廊交互
+  App.tsx                   页面路由与公共外壳
+  pages/                    各页面视图
+  hooks/                    目录状态、URL 筛选与定位
   components/Workspace.tsx   共用的工作空间示意预览
   i18n.ts                   完整中英文界面文案
   types.ts                  主题与语言类型
   lib/storage.ts            带异常保护的浏览器存储
   style.css                 响应式编辑设计系统
 server/
-  app.mjs                   API 与生产静态资源服务
+  app.mjs                   Node API 与 HTML 入口服务
+  catalog.mjs               可复用查询与下载规则
+  page.mjs                  双语服务端页面信息
   database.mjs              数据库初始化与查询
   themes.mjs                原创双语主题种子
   index.mjs                 服务入口与退出清理
 tests/api.test.mjs          使用实际 HTTP 服务的集成测试
+e2e/                       Playwright 桌面与手机场景
+hosting/                   Sites 适配层与 D1 迁移
 docs/                      架构说明、验收记录与页面截图
 .github/workflows/ci.yml    全新安装、测试与构建
 ```
@@ -162,6 +188,8 @@ docs/                      架构说明、验收记录与页面截图
 | GET  | `/api/themes/paper-studio`         | 完整双语主题数据                                          |
 | GET  | `/api/themes/paper-studio/palette` | 名为 `paper-studio.palette.json` 的 JSON 附件             |
 
+额外端点：`GET /api/themes/paper-studio/native` 返回原生分享文本附件；其他主题暂返回 404。`GET /sitemap.xml` 与 `GET /robots.txt` 提供索引入口。
+
 目录参数：`q`（最多 100 字符）、`mode=all|light|dark`、`mood=all|minimal|immersive|organic`、`sort=curated|newest|name`。
 
 ```bash
@@ -173,14 +201,18 @@ curl -OJ 'http://127.0.0.1:3001/api/themes/paper-studio/palette'
 
 ## 部署
 
-**上传 GitHub public 仓库代表公开源码，不代表网站已经在线运行。** GitHub Pages 无法单独运行 Express/SQLite 后端。应选择带持久磁盘的 Node 主机，或将容器放在 HTTPS 反向代理之后。
+**公开网站已部署：**[Vellum](https://vellum.wayback654.chatgpt.site/zh)，使用 Sites / Cloudflare Worker + D1。GitHub 保存源码；Node + SQLite 自托管方式仍可独立使用。
+
+Sites 适配层构建与发布步骤见 [部署说明](docs/HOSTING.md)。Node 部署仍独立可用，GitHub Pages 不能直接运行数据库后端。
+
+> 2026-10-13：平台确认部署成功且为 public，但本次网络访问被 Cloudflare 403 拦截，公开页面与 API 的端到端验收待完成。详情见 [QA 记录](docs/QA.md#发布记录--production-publication)。
 
 ### Node 主机
 
 ```bash
 pnpm install --frozen-lockfile
 pnpm build
-HOST=0.0.0.0 PORT=3001 DATABASE_PATH=/persistent/vellum.sqlite pnpm start
+HOST=0.0.0.0 PORT=3001 DATABASE_PATH=/persistent/vellum.sqlite PUBLIC_ORIGIN=https://your-domain.example pnpm start
 ```
 
 数据库目录必须允许服务用户写入；重新部署时保留 SQLite 文件，并使用适合 SQLite 的一致性备份方式。默认播种只插入不存在的 ID，不覆盖已有数据。当前版本适合单实例；多实例横向扩展时，应将目录迁移到共享数据库。

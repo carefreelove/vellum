@@ -1,7 +1,7 @@
-import { ArrowUp, Plus, PanelLeft, Folder, MessageSquare, Sparkles, Terminal } from 'lucide-react';
+import { ArrowUp, Folder, MessageSquare, PanelLeft, Plus, Sparkles, Terminal } from 'lucide-react';
 import type { CSSProperties } from 'react';
-import type { Theme } from '../types';
 import type { Messages } from '../i18n';
+import type { Theme } from '../types';
 
 export function Workspace({
   theme,

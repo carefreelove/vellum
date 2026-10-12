@@ -10,6 +10,8 @@ A considered collection of Codex workspace aesthetics.
 
 **English** · [简体中文](README.zh-CN.md)
 
+[**Visit Vellum →**](https://vellum.wayback654.chatgpt.site/en)
+
 [![CI](https://github.com/carefreelove/vellum/actions/workflows/ci.yml/badge.svg)](https://github.com/carefreelove/vellum/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/license-MIT-cc4427)](LICENSE)
 ![Node.js 24](https://img.shields.io/badge/Node.js-24-262620)
@@ -22,7 +24,19 @@ A considered collection of Codex workspace aesthetics.
 
 Vellum is an independent, bilingual gallery for people who want a more personal Codex workspace. It pairs an editorial, paper-inspired interface with a small opening collection, consistent workspace previews, side-by-side comparison, and browser-local favorites.
 
-> **Release scope:** this is a working gallery foundation with three original **design concepts**. Preview illustrations are not live Codex screenshots. Downloadable palette JSON files contain reference design tokens, **not installable Codex theme packages**. No Codex files are modified. Desktop installation and compatibility verification are not part of this release.
+> **Current scope:** three original design concepts with illustrative previews, not live Codex screenshots. Palette JSON is reference design data. Paper Studio additionally offers experimental native share text awaiting actual app verification. The website never changes Codex automatically.
+
+## v0.2 changes
+
+- **Shareable state:** language lives in `/en/` and `/zh/` routes; search, appearance, mood and sort persist in the URL. Comparison links carry two theme IDs in `themes`, independent of the recipient's saved collection.
+- **Page metadata:** server-generated localized titles, descriptions, Open Graph, canonical and hreflang tags; sitemap and robots.txt; real HTTP 404s for missing pages and themes. React still renders the page body in the browser.
+- **Native sharing experiment:** Paper Studio offers copy/download of `codex-theme-v1:` text, with backup, import and restoration instructions. The format was inspected read-only against desktop build 26.930.61225; **actual app import remains unverified**. This is not one-click installation. The other two looks remain design previews.
+- **Structure and tests:** dedicated pages, components and hooks; 16 API/content/metadata tests and 12 desktop/mobile Chromium scenarios; browser checks run in GitHub Actions.
+- **Hosting adapter:** local Express + SQLite remains available. Sites runs Vinext + Cloudflare D1 and reuses the catalog, query validation, native serialization and metadata rules.
+
+Example links: `/en/?mode=dark&mood=organic` and `/en/compare?themes=paper-studio,midnight-orbit`. Favorites remain browser-local; an explicit language URL overrides the stored preference.
+
+See the [feasibility record](docs/THEME-FEASIBILITY.md) for field mappings and verification limits. Native panels and syntax colors can differ from the illustrative preview; the share text does not install fonts.
 
 ## Features
 
@@ -84,6 +98,8 @@ Open the Local URL printed by Vite, normally `http://127.0.0.1:5173`. Vite proxi
 # Test and build
 pnpm test
 pnpm build
+pnpm exec playwright install chromium
+pnpm test:e2e
 
 # Serve the production build and API together
 pnpm start
@@ -104,6 +120,8 @@ The production server defaults to `http://127.0.0.1:3001`. Run commands from the
 | `pnpm start`      | Serve built frontend and API in one process                |
 | `pnpm db:seed`    | Initialize the catalog; existing entries are preserved     |
 
+`pnpm test:e2e` requires `pnpm build` first. Tests start an isolated server on port 4175 and an in-memory database; existing data is untouched.
+
 ### Configuration
 
 Optionally copy `.env.example` to `.env`. The server reads it on startup; existing process environment variables take precedence.
@@ -113,6 +131,8 @@ Optionally copy `.env.example` to `.env`. The server reads it on startup; existi
 | `HOST`          | `127.0.0.1`             | Use `0.0.0.0` inside a container or behind a remote reverse proxy |
 | `PORT`          | `3001`                  | HTTP listening port                                               |
 | `DATABASE_PATH` | `./data/gallery.sqlite` | Persistent SQLite file                                            |
+
+Set `PUBLIC_ORIGIN` to the actual HTTPS production origin for canonical, hreflang and sitemap links. The local default is `http://localhost:3001`.
 
 Never commit `.env` or runtime database files. Both are ignored by Git.
 
@@ -135,18 +155,24 @@ SQLite (node:sqlite, WAL mode, persistent disk)
 
 ```text
 src/
-  App.tsx                   Pages and gallery interactions
+  App.tsx                   Page routing and shared shell
+  pages/                    Separate page views
+  hooks/                    Gallery state, URL filters and location
   components/Workspace.tsx   Shared illustrative workspace
   i18n.ts                   Complete English / Chinese interface copy
   types.ts                  Theme and locale types
   lib/storage.ts            Guarded browser storage
   style.css                 Responsive editorial design system
 server/
-  app.mjs                   API and production static serving
+  app.mjs                   Node API and HTML entry serving
+  catalog.mjs               Portable query and download rules
+  page.mjs                  Localized server HTML metadata
   database.mjs              Database initialization and queries
   themes.mjs                Original bilingual seed catalog
   index.mjs                 Server entry and graceful shutdown
 tests/api.test.mjs          Integration tests against a real HTTP server
+e2e/                       Playwright desktop and mobile scenarios
+hosting/                   Sites overlay and D1 migration history
 docs/                      Architecture notes, QA record, screenshots
 .github/workflows/ci.yml    Clean install, tests, and build
 ```
@@ -162,6 +188,8 @@ The UI fetches the catalog from the API and filters the small collection in memo
 | GET    | `/api/themes/paper-studio`         | Complete bilingual theme record                                 |
 | GET    | `/api/themes/paper-studio/palette` | JSON attachment named `paper-studio.palette.json`               |
 
+Additional endpoints: `GET /api/themes/paper-studio/native` returns the native share text attachment; other themes currently return 404. `GET /sitemap.xml` and `GET /robots.txt` expose indexing information.
+
 Catalog parameters: `q` (up to 100 characters), `mode=all|light|dark`, `mood=all|minimal|immersive|organic`, `sort=curated|newest|name`.
 
 ```bash
@@ -173,14 +201,18 @@ Invalid parameters return HTTP 400 with `INVALID_QUERY`; missing themes return 4
 
 ## Deployment
 
-**A public GitHub repository publishes source code; it does not run the website.** GitHub Pages alone cannot run the Express/SQLite backend. Use a Node host with persistent disk, or a container behind an HTTPS reverse proxy.
+**Public deployment:** [Vellum](https://vellum.wayback654.chatgpt.site/en), hosted on Sites / Cloudflare Worker + D1. GitHub hosts the source; the Node + SQLite self-hosted option remains available independently.
+
+See [hosting instructions](docs/HOSTING.md) for the Sites adapter and publication workflow. The Node deployment remains independently usable; GitHub Pages cannot run the database backend.
+
+> 2026-10-13: the platform confirms a successful public deployment, but this network received an upstream Cloudflare 403. Public page/API end-to-end acceptance remains incomplete. See the [QA record](docs/QA.md#发布记录--production-publication).
 
 ### Node host
 
 ```bash
 pnpm install --frozen-lockfile
 pnpm build
-HOST=0.0.0.0 PORT=3001 DATABASE_PATH=/persistent/vellum.sqlite pnpm start
+HOST=0.0.0.0 PORT=3001 DATABASE_PATH=/persistent/vellum.sqlite PUBLIC_ORIGIN=https://your-domain.example pnpm start
 ```
 
 Ensure the database directory is writable by the service user. Preserve the SQLite file across redeployments, and use a SQLite-aware backup process. The default seed inserts missing IDs but never overwrites existing records. Use a single app instance for this version; multi-instance scaling should move the catalog to a shared database.

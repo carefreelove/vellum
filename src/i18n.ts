@@ -1,5 +1,15 @@
 export const messages = {
   en: {
+    nativeFailed: 'Could not copy. Try downloading the theme text instead.',
+    share: 'Copy link',
+    shareCopied: 'Link copied — ready to share',
+    shareFailed: 'Could not copy. Copy the URL from your address bar.',
+    nativeShare: 'Copy Codex theme',
+    nativeStatus: 'Experimental native share',
+    nativeHelp:
+      'Awaiting real app verification. Format checked against 26.930.61225. Back up your current Light theme with Copy Light theme, then use Import Light theme in Settings (Appearance or General, depending on version). Paste the text and select Light mode. Restore by importing your backup. Native panels and syntax colors may differ from this preview; fonts are not installed.',
+    nativeCopied: 'Codex theme text copied',
+    nativeDownload: 'Download native share text',
     explore: 'The collection',
     guide: 'Field notes',
     saved: 'Your collection',
@@ -123,11 +133,11 @@ export const messages = {
       'Save your favorites in this browser. Choose two looks to compare them in the same workspace layout.',
     step4: 'Know what you’re getting',
     step4Body:
-      'The opening collection contains design concepts. JSON files are reference palettes, not Codex installers. There is no one-click installation in this release. Future installable releases need their own compatibility and installation documentation.',
+      'JSON downloads are reference palettes. Paper Studio also offers experimental native share text: back up your current Light theme, then paste the text into Import Light theme in Codex Settings. Its format was checked against 26.930.61225; actual import and cross-version compatibility remain unverified.',
     faq: 'A little clarity',
     faq1: 'Does this change my Codex app?',
     faq1Body:
-      'No. Browsing, comparing, and downloading a reference palette do not modify your Codex app or its configuration.',
+      'Browsing, copying and downloading do not modify Codex. Confirming a native theme import inside Codex changes its appearance settings. The detail page explains backup and restoration.',
     faq2: 'Where are my favorites stored?',
     faq2Body:
       'Only in local storage in this browser. They are not synced between devices. Clearing browser data also clears your collection.',
@@ -153,6 +163,16 @@ export const messages = {
     storageError: 'Browser storage is unavailable. Your changes will last for this visit only.',
   },
   zh: {
+    nativeFailed: '复制失败，请尝试下载分享文本。',
+    share: '复制分享链接',
+    shareCopied: '链接已复制，可以分享了',
+    shareFailed: '复制失败，请从地址栏复制链接。',
+    nativeShare: '复制 Codex 主题',
+    nativeStatus: '实验性原生分享',
+    nativeHelp:
+      '待实机导入验证；格式核验版本为 26.930.61225。先在 Settings 的浅色主题区域用 Copy Light theme 备份当前主题，再选择 Import Light theme，粘贴分享码并切换为 Light 模式。入口可能在 Appearance 或 General 下；恢复时重新导入备份。原生面板与代码配色可能与示意预览不同，分享码不会安装字体。',
+    nativeCopied: '已复制 Codex 主题分享文本',
+    nativeDownload: '下载原生分享文本',
     explore: '主题画廊',
     guide: '使用手记',
     saved: '我的收藏',
@@ -270,10 +290,11 @@ export const messages = {
     step3Body: '把喜欢的主题收藏在当前浏览器，选择两款，在相同的工作空间布局中并排比较。',
     step4: '了解主题的当前状态',
     step4Body:
-      '开篇系列均为设计概念。JSON 文件是参考色板，不是 Codex 安装包；首版不提供一键安装。未来可安装的主题需要独立的兼容性验证和安装文档。',
+      'JSON 文件是参考色板。纸间工作室另提供实验性原生分享码：先备份当前浅色主题，再在 Codex Settings 的 Import Light theme 中粘贴。分享格式已按 26.930.61225 核验，实际导入与跨版本兼容性仍待验证。',
     faq: '你可能还想知道',
     faq1: '这会修改我的 Codex 吗？',
-    faq1Body: '不会。浏览、对比和下载参考配色都不会修改 Codex 应用或配置。',
+    faq1Body:
+      '浏览、对比、复制和下载都不会修改 Codex。只有你在 Codex 中确认导入原生分享码，才会更改对应外观设置；详情页提供备份与恢复步骤。',
     faq2: '收藏保存在哪里？',
     faq2Body: '仅保存在当前浏览器的 localStorage 中，不会跨设备同步。清除浏览器数据也会清除收藏。',
     faq3: '可以创建或投稿主题吗？',

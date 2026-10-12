@@ -5,3 +5,7 @@ data
 pnpm-lock.yaml
 docs/images
 public/licenses
+
+.sites-deploy
+playwright-report
+test-results

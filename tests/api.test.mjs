@@ -85,3 +85,11 @@ test('seed is idempotent and database survives reopening', () => {
   database.close();
   rmSync(directory, { recursive: true });
 });
+test('native download serves text only for the experimental sample', async () => {
+  const response = await get('/api/themes/paper-studio/native');
+  assert.equal(response.status, 200);
+  assert.match(response.headers.get('content-type'), /text\/plain/);
+  assert.match(response.headers.get('content-disposition'), /codex-theme.txt/);
+  assert.match(await response.text(), /^codex-theme-v1:/);
+  assert.equal((await get('/api/themes/midnight-orbit/native')).status, 404);
+});

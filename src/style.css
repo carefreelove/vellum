@@ -2456,3 +2456,31 @@ html[lang='zh-CN'] .page-title h1 {
     border-right: 0;
   }
 }
+
+.native-share {
+  margin: 2rem 0;
+  padding: 1.5rem;
+  background: var(--paper-deep, #eeebe3);
+  border: 1px solid var(--line, #dedbd2);
+  border-radius: 4px;
+}
+.native-share p {
+  font-size: 13px;
+  line-height: 1.85;
+}
+.native-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 20px;
+}
+.share-button {
+  font-size: 12px;
+}
+.inner-page > .share-button {
+  float: right;
+  margin-bottom: 18px;
+}
+.results-bar > .share-button {
+  margin-right: auto;
+}
